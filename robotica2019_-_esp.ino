@@ -25,7 +25,7 @@ ESP8266WebServer server(80);
 const int led = LED_PIN;
 
 bool data_received = false;
-uint32_t send_buffer[] = {0, 0, 0, 0, 0, 0, 0, 0};
+uint32_t first_batch = 0, second_batch = 0;
 
 void handleRoot() {
   digitalWrite(led, 1);
@@ -38,6 +38,7 @@ void handleSet() {
   String args_message = server.arg(0) + " ";
   String one_number;
   int j = 0;
+  uint32_t send_buffer[8];
   for(int i = 0; i < args_message.length(); i++){
       if(args_message[i] != ' '){
         one_number += args_message[i];
@@ -49,10 +50,12 @@ void handleSet() {
         j += 1;
       }
   }
+  first_batch = send_buffer[0] << 24 | send_buffer[1] << 16 | send_buffer[2] << 8 | send_buffer[3];
+  second_batch = send_buffer[4] << 24 | send_buffer[5] << 16 | send_buffer[6] << 8 | send_buffer[7];
   data_received = true;
   server.send(200, "text/plain", "Data received, transmission started");
   int time_offset = server.arg(1).toInt();
-  Serial.print("waiting for ");Serial.println(time_offset);
+  Serial.print("waiting for ms: ");Serial.println(time_offset);
   delay(time_offset);
   digitalWrite(led, 0);
 }
@@ -96,9 +99,7 @@ void loop(void) {
   MDNS.update();
   if (data_received) {
     irsend.sendNEC(0xffffffff, 32);
-    uint32_t first_batch = send_buffer[0] << 24 | send_buffer[1] << 16 | send_buffer[2] << 8 | send_buffer[3];
     irsend.sendNEC(first_batch, 32);
-    uint32_t second_batch = send_buffer[4] << 24 | send_buffer[5] << 16 | send_buffer[6] << 8 | send_buffer[7];
     irsend.sendNEC(second_batch, 32);
     delay(1000);
   }
