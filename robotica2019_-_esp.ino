@@ -44,18 +44,16 @@ void handleSet() {
         one_number += args_message[i];
       }
       else{
-        Serial.println(one_number);
         send_buffer[j] = (uint32_t)one_number.toInt();
         one_number = "";
         j += 1;
       }
   }
-  first_batch = send_buffer[0] << 24 | send_buffer[1] << 16 | send_buffer[2] << 8 | send_buffer[3];
-  second_batch = send_buffer[4] << 24 | send_buffer[5] << 16 | send_buffer[6] << 8 | send_buffer[7];
+  first_batch = (send_buffer[0] << 24) | (send_buffer[1] << 16) | (send_buffer[2] << 8) | send_buffer[3];
+  second_batch = (send_buffer[4] << 24) | (send_buffer[5] << 16) | (send_buffer[6] << 8) | send_buffer[7];
   data_received = true;
   server.send(200, "text/plain", "Data received, transmission started");
   int time_offset = server.arg(1).toInt();
-  Serial.print("waiting for ms: ");Serial.println(time_offset);
   delay(time_offset);
   digitalWrite(led, 0);
 }
