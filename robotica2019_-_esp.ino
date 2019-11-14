@@ -65,31 +65,26 @@ void setup(void) {
   irsend.begin();
   digitalWrite(led, 0);
 
-  Serial.begin(9600);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.println("");
 
-  // Wait for connection
+//  Serial.begin(9600);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+//    Serial.print(".");
   }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+//  Serial.println("");
+//  Serial.print("Connected to ");
+//  Serial.println(ssid);
+//  Serial.print("IP address: ");
+//  Serial.println(WiFi.localIP());
 
-  if (MDNS.begin("esp8266")) {
-    Serial.println("MDNS responder started");
-  }
+  MDNS.begin("esp8266");
   
   server.on("/", handleRoot);
   server.on("/set", handleSet);
 
   server.begin();
-  Serial.println("HTTP server started");
 }
 
 void loop(void) {
@@ -99,6 +94,6 @@ void loop(void) {
     irsend.sendNEC(0xffffffff, 32);
     irsend.sendNEC(first_batch, 32);
     irsend.sendNEC(second_batch, 32);
-    delay(1000);
+    delay(500);
   }
 }
